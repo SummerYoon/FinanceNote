@@ -22,24 +22,26 @@ function renderToday() {
 
 function addExpenseRow() {
   const tbody = document.getElementById("expense-table-body");
+  if (!tbody) return;
   const row = document.createElement("tr");
-  row.innerHTML = \`
+  row.innerHTML = `
     <td><input type="text" class="expense-name" placeholder="내역명"></td>
     <td><select class="expense-category"></select></td>
     <td><input type="number" class="expense-amount" placeholder="0"></td>
-  \`;
+  `;
   tbody.appendChild(row);
   updateCategoryDropdowns();
 }
 
 function addIncomeRow() {
   const tbody = document.getElementById("income-table-body");
+  if (!tbody) return;
   const row = document.createElement("tr");
-  row.innerHTML = \`
+  row.innerHTML = `
     <td><input type="text" class="income-name" placeholder="수입명"></td>
     <td><select class="income-category"></select></td>
     <td><input type="number" class="income-amount" placeholder="0"></td>
-  \`;
+  `;
   tbody.appendChild(row);
   updateCategoryDropdowns();
 }
@@ -49,7 +51,7 @@ function updateCategoryDropdowns() {
   const fullList = ["카테고리 없음", ...cats];
   document.querySelectorAll("select.expense-category, select.income-category").forEach(select => {
     const current = select.value;
-    select.innerHTML = fullList.map(cat => \`<option value="\${cat}">\${cat}</option>\`).join("");
+    select.innerHTML = fullList.map(cat => `<option value="\${cat}">\${cat}</option>`).join("");
     select.value = fullList.includes(current) ? current : "카테고리 없음";
   });
 }
@@ -57,6 +59,7 @@ function updateCategoryDropdowns() {
 function renderCategories() {
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
   const container = document.getElementById("category-list");
+  if (!container) return;
   container.innerHTML = "";
   categories.forEach(cat => {
     const btn = document.createElement("button");
@@ -67,6 +70,7 @@ function renderCategories() {
     del.textContent = "❌";
     del.onclick = () => removeCategory(cat);
     const wrap = document.createElement("span");
+    wrap.style.marginRight = "10px";
     wrap.appendChild(btn);
     wrap.appendChild(del);
     container.appendChild(wrap);
@@ -77,17 +81,15 @@ function removeCategory(catToRemove) {
   const categories = JSON.parse(localStorage.getItem("categories") || "[]").filter(c => c !== catToRemove);
   localStorage.setItem("categories", JSON.stringify(categories));
 
-  // budgets 정리
   const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
   delete budgets[catToRemove];
   localStorage.setItem("budgets", JSON.stringify(budgets));
 
-  // expenses 교체
   for (let key in localStorage) {
-    if (key.startsWith("expenses_")) {
+    if (key.startsWith("expenses_") || key.startsWith("income_")) {
       const data = JSON.parse(localStorage.getItem(key));
       data.forEach(item => {
-        if (item.category === catToRemove || !item.category) {
+        if (!item.category || item.category === catToRemove) {
           item.category = "카테고리 없음";
         }
       });

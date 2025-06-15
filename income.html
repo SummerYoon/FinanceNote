@@ -1,32 +1,31 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html>
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>나의 가계부 - 인컴</title>
-  <link rel="stylesheet" href="style.css" />
+  <title>인컴</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <nav>
-    <h1 contenteditable="true">나의 가계부</h1>
-    <div>
+  <header>
+    <h1>나의 가계부 <button>✏️</button></h1>
+    <nav>
       <a href="index.html">홈</a>
       <a href="analize.html">소비분석</a>
       <a href="setup.html">설정</a>
       <a href="income.html">인컴</a>
-    </div>
-  </nav>
+    </nav>
+  </header>
 
-  <section>
+  <main>
     <h2>수입 입력</h2>
     <table>
       <thead>
-        <tr><th>내역명</th><th>카테고리</th><th>금액</th></tr>
+        <tr><th>수입명</th><th>카테고리</th><th>금액</th></tr>
       </thead>
       <tbody id="income-table-body"></tbody>
     </table>
-    <button onclick="addIncomeRow()">+ 수입 추가</button>
-  </section>
+    <button onclick="addIncomeRow()">➕ 추가 입력하기</button>
+  </main>
 
   <script src="main.js"></script>
 </body>
