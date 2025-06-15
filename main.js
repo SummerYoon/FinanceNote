@@ -1,218 +1,100 @@
 document.addEventListener("DOMContentLoaded", () => {
-  loadCategories();
-  loadBudgets();
-  updateDropdowns();
-
-  document.getElementById("backupButton")?.addEventListener("click", backupData);
-  document.getElementById("restoreInput")?.addEventListener("change", restoreData);
-  document.getElementById("resetButton")?.addEventListener("click", () => {
-    if (confirm("정말 초기화하시겠습니까?")) {
-      localStorage.clear();
-      location.reload();
-    }
-  });
-});
-
-function addNewCategory() {
-  const input = document.getElementById("new-category-input");
-  const newCat = input.value.trim();
-  if (!newCat) return;
-  const cats = JSON.parse(localStorage.getItem("categories") || "[]");
-  if (!cats.includes(newCat)) {
-    cats.push(newCat);
-    localStorage.setItem("categories", JSON.stringify(cats));
-    input.value = "";
-    loadCategories();
-    updateDropdowns();
-  }
-}
-
-function saveBudget() {
-  const category = document.getElementById("budget-category").value;
-  const amount = parseInt(document.getElementById("budget-amount").value || "0");
-  if (!category || isNaN(amount)) return;
-
-  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
-  budgets[category] = amount;
-  localStorage.setItem("budgets", JSON.stringify(budgets));
-  loadBudgets();
-}
-
-function loadCategories() {
-  const cats = JSON.parse(localStorage.getItem("categories") || "[]");
-  const tbody = document.getElementById("category-table-body");
-  if (tbody) {
-    tbody.innerHTML = "";
-    cats.forEach(cat => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${cat}</td>`;
-      tbody.appendChild(tr);
-    });
-  }
-}
-
-function loadBudgets() {
-  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
-  const tbody = document.getElementById("budget-table-body");
-  if (tbody) {
-    tbody.innerHTML = "";
-    for (const [cat, amt] of Object.entries(budgets)) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${cat}</td><td>${amt.toLocaleString()} 원</td>`;
-      tbody.appendChild(tr);
-    }
-  }
-}
-
-function updateDropdowns() {
-  const cats = JSON.parse(localStorage.getItem("categories") || "[]");
-  const select = document.getElementById("budget-category");
-  if (select) {
-    select.innerHTML = cats.map(cat => `<option>${cat}</option>`).join("");
-  }
-
-  // 소비/수입 입력 페이지의 드롭다운도 같이 반영
-  document.querySelectorAll("select.expense-category, select.income-category").forEach(select => {
-    select.innerHTML = cats.map(cat => `<option>${cat}</option>`).join("");
-  });
-}
-
-function backupData() {
-  const data = {
-    categories: localStorage.getItem("categories"),
-    budgets: localStorage.getItem("budgets")
-  };
-  const blob = new Blob([JSON.stringify(data)], { type: "application/json" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "budget_backup.json";
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function restoreData(event) {
-  const file = event.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = function(e) {
-    try {
-      const data = JSON.parse(e.target.result);
-      if (data.categories) localStorage.setItem("categories", JSON.stringify(data.categories));
-      if (data.budgets) localStorage.setItem("budgets", JSON.stringify(data.budgets));
-      alert("복원 완료! 새로고침됩니다.");
-      location.reload();
-    } catch {
-      alert("잘못된 파일 형식입니다.");
-    }
-  };
-  reader.readAsText(file);
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  if (document.getElementById("analysis-table-body")) {
+  const page = location.pathname;
+  if (page.includes("index.html")) {
+    renderToday();
+    for (let i = 0; i < 5; i++) addExpenseRow();
+  } else if (page.includes("income.html")) {
+    for (let i = 0; i < 3; i++) addIncomeRow();
+  } else if (page.includes("setup.html")) {
+    renderCategories();
+    renderBudgets();
+  } else if (page.includes("analize.html")) {
     loadAnalysisTable();
   }
 });
 
-function loadAnalysisTable() {
-  const monthKey = new Date().toISOString().slice(0, 7); // YYYY-MM
-  const expenses = JSON.parse(localStorage.getItem(`expenses_${monthKey}`) || "[]");
-  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
+function renderToday() {
+  const today = new Date();
+  const dateStr = today.getFullYear() + ". " + (today.getMonth() + 1) + ". " + today.getDate() + ".";
+  const dateSpan = document.getElementById("today-date");
+  if (dateSpan) dateSpan.textContent = dateStr;
+}
 
-  const usageByCategory = {};
+function addExpenseRow() {
+  const tbody = document.getElementById("expense-table-body");
+  const row = document.createElement("tr");
+  row.innerHTML = \`
+    <td><input type="text" class="expense-name" placeholder="내역명"></td>
+    <td><select class="expense-category"></select></td>
+    <td><input type="number" class="expense-amount" placeholder="0"></td>
+  \`;
+  tbody.appendChild(row);
+  updateCategoryDropdowns();
+}
 
-  // 카테고리별 사용 금액 합산
-  expenses.forEach(exp => {
-    if (!usageByCategory[exp.category]) usageByCategory[exp.category] = 0;
-    usageByCategory[exp.category] += exp.amount || 0;
-  });
+function addIncomeRow() {
+  const tbody = document.getElementById("income-table-body");
+  const row = document.createElement("tr");
+  row.innerHTML = \`
+    <td><input type="text" class="income-name" placeholder="수입명"></td>
+    <td><select class="income-category"></select></td>
+    <td><input type="number" class="income-amount" placeholder="0"></td>
+  \`;
+  tbody.appendChild(row);
+  updateCategoryDropdowns();
+}
 
-  const tbody = document.getElementById("analysis-table-body");
-  tbody.innerHTML = "";
-
-  // 분석 테이블 채우기
-  Object.keys(budgets).forEach(cat => {
-    const used = usageByCategory[cat] || 0;
-    const budget = budgets[cat];
-    const remain = budget - used;
-
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${cat}</td>
-      <td>${used.toLocaleString()}원</td>
-      <td>${budget.toLocaleString()}원</td>
-      <td>${remain.toLocaleString()}원</td>
-    `;
-    tbody.appendChild(tr);
+function updateCategoryDropdowns() {
+  const cats = JSON.parse(localStorage.getItem("categories") || "[]");
+  const fullList = ["카테고리 없음", ...cats];
+  document.querySelectorAll("select.expense-category, select.income-category").forEach(select => {
+    const current = select.value;
+    select.innerHTML = fullList.map(cat => \`<option value="\${cat}">\${cat}</option>\`).join("");
+    select.value = fullList.includes(current) ? current : "카테고리 없음";
   });
 }
 
-function loadAnalysisTable() {
-  const monthKey = new Date().toISOString().slice(0, 7);
-  const expenses = JSON.parse(localStorage.getItem(`expenses_${monthKey}`) || "[]");
-  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
-
-  const usageByCategory = {};
-  expenses.forEach(exp => {
-    if (!usageByCategory[exp.category]) usageByCategory[exp.category] = 0;
-    usageByCategory[exp.category] += exp.amount || 0;
+function renderCategories() {
+  const categories = JSON.parse(localStorage.getItem("categories") || "[]");
+  const container = document.getElementById("category-list");
+  container.innerHTML = "";
+  categories.forEach(cat => {
+    const btn = document.createElement("button");
+    btn.textContent = cat;
+    btn.disabled = true;
+    btn.style.marginRight = "8px";
+    const del = document.createElement("button");
+    del.textContent = "❌";
+    del.onclick = () => removeCategory(cat);
+    const wrap = document.createElement("span");
+    wrap.appendChild(btn);
+    wrap.appendChild(del);
+    container.appendChild(wrap);
   });
+}
 
-  const tbody = document.getElementById("analysis-table-body");
-  tbody.innerHTML = "";
+function removeCategory(catToRemove) {
+  const categories = JSON.parse(localStorage.getItem("categories") || "[]").filter(c => c !== catToRemove);
+  localStorage.setItem("categories", JSON.stringify(categories));
 
-  let totalUsed = 0, totalBudget = 0;
+  // budgets 정리
+  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
+  delete budgets[catToRemove];
+  localStorage.setItem("budgets", JSON.stringify(budgets));
 
-  for (const cat in budgets) {
-    const used = usageByCategory[cat] || 0;
-    const budget = budgets[cat];
-    const remain = budget - used;
-
-    totalUsed += used;
-    totalBudget += budget;
-
-    const tr = document.createElement("tr");
-    if (remain < 0) tr.style.backgroundColor = "#ffe0e0";
-
-    tr.innerHTML = `
-      <td>${cat}</td>
-      <td>${used.toLocaleString()}원</td>
-      <td>${budget.toLocaleString()}원</td>
-      <td>${remain.toLocaleString()}원</td>
-    `;
-    tbody.appendChild(tr);
+  // expenses 교체
+  for (let key in localStorage) {
+    if (key.startsWith("expenses_")) {
+      const data = JSON.parse(localStorage.getItem(key));
+      data.forEach(item => {
+        if (item.category === catToRemove || !item.category) {
+          item.category = "카테고리 없음";
+        }
+      });
+      localStorage.setItem(key, JSON.stringify(data));
+    }
   }
 
-  document.getElementById("total-used").textContent = totalUsed.toLocaleString() + "원";
-  document.getElementById("total-budget").textContent = totalBudget.toLocaleString() + "원";
-  document.getElementById("total-remaining").textContent = (totalBudget - totalUsed).toLocaleString() + "원";
-  document.getElementById("current-month").textContent = monthKey;
-
-  renderDonutChart(usageByCategory);
-}
-
-function renderDonutChart(dataObj) {
-  const ctx = document.getElementById('donutChart').getContext('2d');
-  const labels = Object.keys(dataObj);
-  const data = Object.values(dataObj);
-  if (window.donutChart) window.donutChart.destroy();
-  window.donutChart = new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: labels,
-      datasets: [{
-        data: data,
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: {
-          position: 'bottom'
-        }
-      }
-    }
-  });
+  renderCategories();
+  updateCategoryDropdowns();
 }
