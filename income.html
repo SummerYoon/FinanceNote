@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>인컴</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,7 +23,11 @@
       <thead>
         <tr><th>수입명</th><th>카테고리</th><th>금액</th></tr>
       </thead>
-      <tbody id="income-table-body"></tbody>
+      <tbody id="income-table-body">
+        <tr><td><input type="text" placeholder="예: 월급"></td><td><select><option>급여</option></select></td><td><input type="number" placeholder="0"></td></tr>
+        <tr><td><input type="text" placeholder="예: 용돈"></td><td><select><option>기타</option></select></td><td><input type="number" placeholder="0"></td></tr>
+        <tr><td><input type="text" placeholder="예: 부수입"></td><td><select><option>부업</option></select></td><td><input type="number" placeholder="0"></td></tr>
+      </tbody>
     </table>
     <button onclick="addIncomeRow()">➕ 추가 입력하기</button>
   </main>

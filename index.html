@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>나의 가계부</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -22,7 +23,13 @@
       <thead>
         <tr><th>내역명</th><th>카테고리</th><th>금액</th></tr>
       </thead>
-      <tbody id="expense-table-body"></tbody>
+      <tbody id="expense-table-body">
+        <tr><td><input type="text" placeholder="예: 점심"></td><td><select><option>식비</option></select></td><td><input type="number" placeholder="0"></td></tr>
+        <tr><td><input type="text" placeholder="예: 커피"></td><td><select><option>음료</option></select></td><td><input type="number" placeholder="0"></td></tr>
+        <tr><td><input type="text" placeholder="예: 마트"></td><td><select><option>장보기</option></select></td><td><input type="number" placeholder="0"></td></tr>
+        <tr><td><input type="text" placeholder="예: 교통비"></td><td><select><option>교통</option></select></td><td><input type="number" placeholder="0"></td></tr>
+        <tr><td><input type="text" placeholder="예: 기타"></td><td><select><option>기타</option></select></td><td><input type="number" placeholder="0"></td></tr>
+      </tbody>
     </table>
     <button onclick="addExpenseRow()">➕ 추가 입력하기</button>
   </main>
