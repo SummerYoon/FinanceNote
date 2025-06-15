@@ -13,7 +13,6 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// 카테고리 추가
 function addNewCategory() {
   const input = document.getElementById("new-category-input");
   const newCat = input.value.trim();
@@ -28,7 +27,6 @@ function addNewCategory() {
   }
 }
 
-// 예산 저장
 function saveBudget() {
   const category = document.getElementById("budget-category").value;
   const amount = parseInt(document.getElementById("budget-amount").value || "0");
@@ -40,7 +38,6 @@ function saveBudget() {
   loadBudgets();
 }
 
-// 카테고리 목록 로드
 function loadCategories() {
   const cats = JSON.parse(localStorage.getItem("categories") || "[]");
   const tbody = document.getElementById("category-table-body");
@@ -48,13 +45,12 @@ function loadCategories() {
     tbody.innerHTML = "";
     cats.forEach(cat => {
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>\${cat}</td>`;
+      tr.innerHTML = `<td>${cat}</td>`;
       tbody.appendChild(tr);
     });
   }
 }
 
-// 예산 목록 로드
 function loadBudgets() {
   const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
   const tbody = document.getElementById("budget-table-body");
@@ -62,22 +58,25 @@ function loadBudgets() {
     tbody.innerHTML = "";
     for (const [cat, amt] of Object.entries(budgets)) {
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>\${cat}</td><td>\${amt.toLocaleString()} 원</td>`;
+      tr.innerHTML = `<td>${cat}</td><td>${amt.toLocaleString()} 원</td>`;
       tbody.appendChild(tr);
     }
   }
 }
 
-// 카테고리 드롭다운에 반영
 function updateDropdowns() {
   const cats = JSON.parse(localStorage.getItem("categories") || "[]");
   const select = document.getElementById("budget-category");
   if (select) {
-    select.innerHTML = cats.map(cat => `<option>\${cat}</option>`).join("");
+    select.innerHTML = cats.map(cat => `<option>${cat}</option>`).join("");
   }
+
+  // 소비/수입 입력 페이지의 드롭다운도 같이 반영
+  document.querySelectorAll("select.expense-category, select.income-category").forEach(select => {
+    select.innerHTML = cats.map(cat => `<option>${cat}</option>`).join("");
+  });
 }
 
-// 백업
 function backupData() {
   const data = {
     categories: localStorage.getItem("categories"),
@@ -92,7 +91,6 @@ function backupData() {
   URL.revokeObjectURL(url);
 }
 
-// 복원
 function restoreData(event) {
   const file = event.target.files[0];
   if (!file) return;
@@ -100,8 +98,8 @@ function restoreData(event) {
   reader.onload = function(e) {
     try {
       const data = JSON.parse(e.target.result);
-      if (data.categories) localStorage.setItem("categories", data.categories);
-      if (data.budgets) localStorage.setItem("budgets", data.budgets);
+      if (data.categories) localStorage.setItem("categories", JSON.stringify(data.categories));
+      if (data.budgets) localStorage.setItem("budgets", JSON.stringify(data.budgets));
       alert("복원 완료! 새로고침됩니다.");
       location.reload();
     } catch {
@@ -109,4 +107,112 @@ function restoreData(event) {
     }
   };
   reader.readAsText(file);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  if (document.getElementById("analysis-table-body")) {
+    loadAnalysisTable();
+  }
+});
+
+function loadAnalysisTable() {
+  const monthKey = new Date().toISOString().slice(0, 7); // YYYY-MM
+  const expenses = JSON.parse(localStorage.getItem(`expenses_${monthKey}`) || "[]");
+  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
+
+  const usageByCategory = {};
+
+  // 카테고리별 사용 금액 합산
+  expenses.forEach(exp => {
+    if (!usageByCategory[exp.category]) usageByCategory[exp.category] = 0;
+    usageByCategory[exp.category] += exp.amount || 0;
+  });
+
+  const tbody = document.getElementById("analysis-table-body");
+  tbody.innerHTML = "";
+
+  // 분석 테이블 채우기
+  Object.keys(budgets).forEach(cat => {
+    const used = usageByCategory[cat] || 0;
+    const budget = budgets[cat];
+    const remain = budget - used;
+
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${cat}</td>
+      <td>${used.toLocaleString()}원</td>
+      <td>${budget.toLocaleString()}원</td>
+      <td>${remain.toLocaleString()}원</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function loadAnalysisTable() {
+  const monthKey = new Date().toISOString().slice(0, 7);
+  const expenses = JSON.parse(localStorage.getItem(`expenses_${monthKey}`) || "[]");
+  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
+
+  const usageByCategory = {};
+  expenses.forEach(exp => {
+    if (!usageByCategory[exp.category]) usageByCategory[exp.category] = 0;
+    usageByCategory[exp.category] += exp.amount || 0;
+  });
+
+  const tbody = document.getElementById("analysis-table-body");
+  tbody.innerHTML = "";
+
+  let totalUsed = 0, totalBudget = 0;
+
+  for (const cat in budgets) {
+    const used = usageByCategory[cat] || 0;
+    const budget = budgets[cat];
+    const remain = budget - used;
+
+    totalUsed += used;
+    totalBudget += budget;
+
+    const tr = document.createElement("tr");
+    if (remain < 0) tr.style.backgroundColor = "#ffe0e0";
+
+    tr.innerHTML = `
+      <td>${cat}</td>
+      <td>${used.toLocaleString()}원</td>
+      <td>${budget.toLocaleString()}원</td>
+      <td>${remain.toLocaleString()}원</td>
+    `;
+    tbody.appendChild(tr);
+  }
+
+  document.getElementById("total-used").textContent = totalUsed.toLocaleString() + "원";
+  document.getElementById("total-budget").textContent = totalBudget.toLocaleString() + "원";
+  document.getElementById("total-remaining").textContent = (totalBudget - totalUsed).toLocaleString() + "원";
+  document.getElementById("current-month").textContent = monthKey;
+
+  renderDonutChart(usageByCategory);
+}
+
+function renderDonutChart(dataObj) {
+  const ctx = document.getElementById('donutChart').getContext('2d');
+  const labels = Object.keys(dataObj);
+  const data = Object.values(dataObj);
+  if (window.donutChart) window.donutChart.destroy();
+  window.donutChart = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        }
+      }
+    }
+  });
 }
