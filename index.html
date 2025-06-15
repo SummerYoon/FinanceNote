@@ -28,6 +28,35 @@
     <button onclick="addExpenseRow()">+ 추가 입력하기</button>
   </section>
 
-  <script src="main.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date();
+      const dateStr = today.getFullYear() + ". " + (today.getMonth() + 1) + ". " + today.getDate() + ".";
+      document.getElementById("today-date").textContent = dateStr;
+
+      for (let i = 0; i < 5; i++) addExpenseRow();
+    });
+
+    function addExpenseRow() {
+      const tbody = document.getElementById("expense-table-body");
+      const row = document.createElement("tr");
+      row.innerHTML = \`
+        <td><input type="text" class="expense-name" placeholder="내역명"></td>
+        <td>
+          <select class="expense-category"></select>
+        </td>
+        <td><input type="number" class="expense-amount" placeholder="0"></td>
+      \`;
+      tbody.appendChild(row);
+      updateCategoryDropdowns();
+    }
+
+    function updateCategoryDropdowns() {
+      const cats = JSON.parse(localStorage.getItem("categories") || "[]");
+      document.querySelectorAll("select.expense-category").forEach(select => {
+        select.innerHTML = cats.map(cat => `<option>${cat}</option>`).join("");
+      });
+    }
+  </script>
 </body>
 </html>
