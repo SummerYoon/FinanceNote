@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>나의 가계부 - 홈</title>
+  <title>나의 가계부 - 설정</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -18,14 +18,19 @@
   </nav>
 
   <section>
-    <h2>오늘의 소비 입력 - <span id="today-date"></span></h2>
-    <table>
-      <thead>
-        <tr><th>내역명</th><th>카테고리</th><th>금액</th></tr>
-      </thead>
-      <tbody id="expense-table-body"></tbody>
-    </table>
-    <button onclick="addExpenseRow()">+ 추가 입력하기</button>
+    <h2>카테고리 및 예산 설정</h2>
+    <div>
+      <select id="budget-category">
+        <option>식비</option>
+        <option>교통비</option>
+      </select>
+      <input type="number" placeholder="예산 금액" />
+      <button>저장</button>
+    </div>
+    <div>
+      <input type="text" placeholder="새 카테고리" />
+      <button>카테고리 추가</button>
+    </div>
   </section>
 
   <script src="main.js"></script>

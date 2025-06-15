@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>나의 가계부 - 홈</title>
+  <title>나의 가계부 - 소비분석</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -18,14 +18,15 @@
   </nav>
 
   <section>
-    <h2>오늘의 소비 입력 - <span id="today-date"></span></h2>
+    <h2>월별 소비 분석</h2>
     <table>
       <thead>
-        <tr><th>내역명</th><th>카테고리</th><th>금액</th></tr>
+        <tr><th>카테고리</th><th>사용 금액</th><th>예산</th><th>남은 예산</th></tr>
       </thead>
-      <tbody id="expense-table-body"></tbody>
+      <tbody id="analysis-table-body">
+        <tr><td>식비</td><td>120,000원</td><td>200,000원</td><td>80,000원</td></tr>
+      </tbody>
     </table>
-    <button onclick="addExpenseRow()">+ 추가 입력하기</button>
   </section>
 
   <script src="main.js"></script>
