@@ -19,17 +19,30 @@
 
   <section>
     <h2>카테고리 및 예산 설정</h2>
+
     <div>
-      <select id="budget-category">
-        <option>식비</option>
-        <option>교통비</option>
-      </select>
-      <input type="number" placeholder="예산 금액" />
-      <button>저장</button>
+      <select id="budget-category"></select>
+      <input type="number" id="budget-amount" placeholder="예산 금액" />
+      <button onclick="saveBudget()">저장</button>
     </div>
-    <div>
-      <input type="text" placeholder="새 카테고리" />
-      <button>카테고리 추가</button>
+    <table>
+      <thead><tr><th>카테고리</th><th>예산금액</th></tr></thead>
+      <tbody id="budget-table-body"></tbody>
+    </table>
+
+    <div style="margin-top: 20px;">
+      <input type="text" id="new-category-input" placeholder="새 카테고리 입력" />
+      <button onclick="addNewCategory()">카테고리 추가</button>
+    </div>
+    <table>
+      <thead><tr><th>등록된 카테고리</th></tr></thead>
+      <tbody id="category-table-body"></tbody>
+    </table>
+
+    <div style="margin-top: 30px;">
+      <button id="backupButton">💾 백업</button>
+      <input type="file" id="restoreInput" />
+      <button id="resetButton">🗑️ 전체 초기화</button>
     </div>
   </section>
 
