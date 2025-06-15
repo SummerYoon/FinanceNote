@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>🔄 메모 백업</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f9f9f9; }
+    textarea {
+      width: 100%;
+      height: 300px;
+      font-family: monospace;
+      font-size: 14px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
+    button {
+      margin-top: 10px;
+      padding: 10px 15px;
+    }
+    .tip {
+      background: #fff3cd;
+      border: 1px solid #ffeeba;
+      padding: 10px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 0.95em;
+    }
+    #lastBackup {
+      font-size: 0.9em;
+      color: #666;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <h2>🔄 메모 백업</h2>
+  <div class="tip">
+    복사된 내용을 <strong>iOS에서는 하단 공유 버튼 → '파일에 저장'</strong>을 선택해 저장하세요.<br>
+    <small>📁 파일명에는 백업 날짜가 자동 포함됩니다.</small>
+  </div>
+
+  <textarea id="backupArea" readonly></textarea>
+  <button onclick="copyToClipboard()">📋 복사하기</button>
+  <button onclick="openNewTab()">🧾 새 탭으로 보기</button>
+  <p id="lastBackup"></p>
+
+  <script>
+    const data = localStorage.getItem("noteList") || "[]";
+    const parsed = JSON.parse(data);
+    const now = new Date();
+    const json = JSON.stringify(parsed, null, 2);
+    const filename = "backup_" + now.toISOString().slice(0,19).replace(/[:T]/g, "-") + ".json";
+
+    document.getElementById("backupArea").value = json;
+    localStorage.setItem("lastBackupDate", now.toLocaleString());
+    document.getElementById("lastBackup").textContent = "📅 백업 시각: " + now.toLocaleString();
+
+    function copyToClipboard() {
+      const area = document.getElementById("backupArea");
+      area.select();
+      document.execCommand("copy");
+      alert("복사되었습니다. 공유 > 파일에 저장을 눌러주세요.");
+    }
+
+    function openNewTab() {
+      const win = window.open();
+      win.document.write(
+        '<h2>📄 메모 백업 데이터</h2>' +
+        '<p style="font-size:0.95em;">공유 버튼 → 파일에 저장하세요. 파일명: <code>' + filename + '</code></p>' +
+        '<pre>' + json.replace(/</g, '&lt;') + '</pre>'
+      );
+      win.document.title = filename;
+    }
+  </script>
+</body>
+</html>
