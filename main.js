@@ -22,26 +22,24 @@ function renderToday() {
 
 function addExpenseRow() {
   const tbody = document.getElementById("expense-table-body");
-  if (!tbody) return;
   const row = document.createElement("tr");
-  row.innerHTML = `
+  row.innerHTML = \`
     <td><input type="text" class="expense-name" placeholder="내역명"></td>
     <td><select class="expense-category"></select></td>
     <td><input type="number" class="expense-amount" placeholder="0"></td>
-  `;
+  \`;
   tbody.appendChild(row);
   updateCategoryDropdowns();
 }
 
 function addIncomeRow() {
   const tbody = document.getElementById("income-table-body");
-  if (!tbody) return;
   const row = document.createElement("tr");
-  row.innerHTML = `
+  row.innerHTML = \`
     <td><input type="text" class="income-name" placeholder="수입명"></td>
     <td><select class="income-category"></select></td>
     <td><input type="number" class="income-amount" placeholder="0"></td>
-  `;
+  \`;
   tbody.appendChild(row);
   updateCategoryDropdowns();
 }
@@ -51,7 +49,7 @@ function updateCategoryDropdowns() {
   const fullList = ["카테고리 없음", ...cats];
   document.querySelectorAll("select.expense-category, select.income-category").forEach(select => {
     const current = select.value;
-    select.innerHTML = fullList.map(cat => `<option value="\${cat}">\${cat}</option>`).join("");
+    select.innerHTML = fullList.map(cat => \`<option value="\${cat}">\${cat}</option>\`).join("");
     select.value = fullList.includes(current) ? current : "카테고리 없음";
   });
 }
@@ -59,41 +57,19 @@ function updateCategoryDropdowns() {
 function renderCategories() {
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
   const container = document.getElementById("category-list");
-  if (!container) return;
   container.innerHTML = "";
-
-  container.style.display = "flex";
-  container.style.flexWrap = "wrap";
-  container.style.gap = "8px";
-
   categories.forEach(cat => {
-    const catWrap = document.createElement("span");
-    catWrap.style.display = "inline-flex";
-    catWrap.style.alignItems = "center";
-
     const btn = document.createElement("button");
     btn.textContent = cat;
     btn.disabled = true;
-    btn.style.backgroundColor = "#4da6ff";
-    btn.style.color = "white";
-    btn.style.border = "none";
-    btn.style.padding = "6px 12px";
-    btn.style.borderRadius = "16px";
-    btn.style.fontSize = "14px";
-
+    btn.style.marginRight = "8px";
     const del = document.createElement("button");
     del.textContent = "❌";
-    del.style.marginLeft = "4px";
-    del.style.fontSize = "10px";
-    del.onclick = () => {
-      if (confirm(`정말 [\${cat}] 카테고리를 삭제하시겠습니까?`)) {
-        removeCategory(cat);
-      }
-    };
-
-    catWrap.appendChild(btn);
-    catWrap.appendChild(del);
-    container.appendChild(catWrap);
+    del.onclick = () => removeCategory(cat);
+    const wrap = document.createElement("span");
+    wrap.appendChild(btn);
+    wrap.appendChild(del);
+    container.appendChild(wrap);
   });
 }
 
@@ -101,15 +77,17 @@ function removeCategory(catToRemove) {
   const categories = JSON.parse(localStorage.getItem("categories") || "[]").filter(c => c !== catToRemove);
   localStorage.setItem("categories", JSON.stringify(categories));
 
+  // budgets 정리
   const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
   delete budgets[catToRemove];
   localStorage.setItem("budgets", JSON.stringify(budgets));
 
+  // expenses 교체
   for (let key in localStorage) {
-    if (key.startsWith("expenses_") || key.startsWith("income_")) {
+    if (key.startsWith("expenses_")) {
       const data = JSON.parse(localStorage.getItem(key));
       data.forEach(item => {
-        if (!item.category || item.category === catToRemove) {
+        if (item.category === catToRemove || !item.category) {
           item.category = "카테고리 없음";
         }
       });
@@ -119,4 +97,64 @@ function removeCategory(catToRemove) {
 
   renderCategories();
   updateCategoryDropdowns();
+}
+
+function addNewCategory() {
+  const input = document.getElementById("new-category-input");
+  const newCat = input.value.trim();
+  if (!newCat) return;
+  let categories = JSON.parse(localStorage.getItem("categories") || "[]");
+  if (!categories.includes(newCat)) {
+    categories.push(newCat);
+    localStorage.setItem("categories", JSON.stringify(categories));
+    renderCategories();
+    updateCategoryDropdowns();
+  }
+  input.value = "";
+}
+
+function saveTodayExpenses() {
+  const rows = document.querySelectorAll("#expense-table-body tr");
+  const data = [];
+  rows.forEach(row => {
+    const name = row.querySelector(".expense-name")?.value || row.children[0].querySelector("input").value;
+    const category = row.querySelector(".expense-category")?.value || row.children[1].querySelector("select").value;
+    const amount = parseInt(row.querySelector(".expense-amount")?.value || row.children[2].querySelector("input").value) || 0;
+    if (name && category) {
+      data.push({ name, category, amount });
+    }
+  });
+
+  const today = new Date();
+  const monthKey = "expenses_" + today.toISOString().slice(0, 7); // "expenses_2025-06"
+  const existing = JSON.parse(localStorage.getItem(monthKey) || "[]");
+  localStorage.setItem(monthKey, JSON.stringify(existing.concat(data)));
+
+  alert("저장되었습니다!");
+}
+
+function loadThisMonthExpenses() {
+  const monthKey = "expenses_" + new Date().toISOString().slice(0, 7);
+  const data = JSON.parse(localStorage.getItem(monthKey) || "[]");
+
+  const container = document.getElementById("monthly-details");
+  if (!container) return;
+  if (data.length === 0) {
+    container.innerHTML = "<p>이번달 소비 내역이 없습니다.</p>";
+    return;
+  }
+
+  const table = document.createElement("table");
+  table.innerHTML = \`
+    <thead><tr><th>날짜</th><th>항목</th><th>카테고리</th><th>금액</th></tr></thead>
+    <tbody>\${data.map(d => \`
+      <tr>
+        <td>\${new Date().toLocaleDateString("ko-KR")}</td>
+        <td>\${d.name}</td>
+        <td>\${d.category}</td>
+        <td>\${d.amount.toLocaleString()}원</td>
+      </tr>\`).join("")}</tbody>
+  \`;
+  container.innerHTML = "<h3>이번달 소비 내역</h3>";
+  container.appendChild(table);
 }
