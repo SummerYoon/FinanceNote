@@ -1,40 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>나의 가계부</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>나의 가계부 - 홈</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <header>
-    <h1>나의 가계부 <button>✏️</button></h1>
-    <nav>
+  <nav>
+    <h1 contenteditable="true">나의 가계부</h1>
+    <div>
       <a href="index.html">홈</a>
       <a href="analize.html">소비분석</a>
       <a href="setup.html">설정</a>
       <a href="income.html">인컴</a>
-    </nav>
-  </header>
+    </div>
+  </nav>
 
-  <main>
-    <h2>오늘의 소비 내역 <span id="today-date"></span></h2>
+  <section>
+    <h2>오늘의 소비 입력 - <span id="today-date"></span></h2>
     <table>
       <thead>
         <tr><th>내역명</th><th>카테고리</th><th>금액</th></tr>
       </thead>
-      <tbody id="expense-table-body">
-        <tr><td><input type="text" placeholder="예: 점심"></td><td><select><option>식비</option></select></td><td><input type="number" placeholder="0"></td></tr>
-        <tr><td><input type="text" placeholder="예: 커피"></td><td><select><option>음료</option></select></td><td><input type="number" placeholder="0"></td></tr>
-        <tr><td><input type="text" placeholder="예: 마트"></td><td><select><option>장보기</option></select></td><td><input type="number" placeholder="0"></td></tr>
-        <tr><td><input type="text" placeholder="예: 교통비"></td><td><select><option>교통</option></select></td><td><input type="number" placeholder="0"></td></tr>
-        <tr><td><input type="text" placeholder="예: 기타"></td><td><select><option>기타</option></select></td><td><input type="number" placeholder="0"></td></tr>
-      </tbody>
+      <tbody id="expense-table-body"></tbody>
     </table>
-    <button onclick="addExpenseRow()">➕ 추가 입력하기</button>
-    <button onclick="saveTodayExpenses()" style="margin-top: 10px;">💾 저장</button>
-  </main>
+    <button onclick="addExpenseRow()">+ 추가 입력하기</button>
+  </section>
 
-  <script src="main.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date();
+      const dateStr = today.getFullYear() + ". " + (today.getMonth() + 1) + ". " + today.getDate() + ".";
+      document.getElementById("today-date").textContent = dateStr;
+
+      for (let i = 0; i < 5; i++) addExpenseRow();
+    });
+
+    function addExpenseRow() {
+      const tbody = document.getElementById("expense-table-body");
+      const row = document.createElement("tr");
+      row.innerHTML = \`
+        <td><input type="text" class="expense-name" placeholder="내역명"></td>
+        <td>
+          <select class="expense-category"></select>
+        </td>
+        <td><input type="number" class="expense-amount" placeholder="0"></td>
+      \`;
+      tbody.appendChild(row);
+      updateCategoryDropdowns();
+    }
+
+    function updateCategoryDropdowns() {
+      const cats = JSON.parse(localStorage.getItem("categories") || "[]");
+      document.querySelectorAll("select.expense-category").forEach(select => {
+        select.innerHTML = cats.map(cat => `<option>${cat}</option>`).join("");
+      });
+    }
+  </script>
 </body>
 </html>
