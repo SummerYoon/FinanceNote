@@ -44,16 +44,6 @@ function addIncomeRow() {
   updateCategoryDropdowns();
 }
 
-function updateCategoryDropdowns() {
-  const cats = JSON.parse(localStorage.getItem("categories") || "[]");
-  const fullList = ["카테고리 없음", ...cats];
-  document.querySelectorAll("select.expense-category, select.income-category").forEach(select => {
-    const current = select.value;
-    select.innerHTML = fullList.map(cat => \`<option value="\${cat}">\${cat}</option>\`).join("");
-    select.value = fullList.includes(current) ? current : "카테고리 없음";
-  });
-}
-
 function renderCategories() {
   const categories = JSON.parse(localStorage.getItem("categories") || "[]");
   const container = document.getElementById("category-list");
@@ -157,4 +147,72 @@ function loadThisMonthExpenses() {
   \`;
   container.innerHTML = "<h3>이번달 소비 내역</h3>";
   container.appendChild(table);
+}
+
+// Ensure '카테고리 없음' is always present
+function ensureDefaultCategory() {
+  let categories = JSON.parse(localStorage.getItem("categories") || "[]");
+  if (!categories.includes("카테고리 없음")) {
+    categories.unshift("카테고리 없음");
+    localStorage.setItem("categories", JSON.stringify(categories));
+  }
+}
+
+function addNewCategory() {
+  const input = document.getElementById("new-category-input");
+  const newCat = input.value.trim();
+  if (!newCat || newCat === "카테고리 없음") return;
+
+  let categories = JSON.parse(localStorage.getItem("categories") || "[]");
+  if (!categories.includes(newCat)) {
+    categories.push(newCat);
+    localStorage.setItem("categories", JSON.stringify(categories));
+    renderCategories();
+    updateCategoryDropdowns();
+  }
+  input.value = "";
+}
+
+function removeCategory(catToRemove) {
+  if (catToRemove === "카테고리 없음") return;
+
+  let categories = JSON.parse(localStorage.getItem("categories") || "[]");
+  categories = categories.filter(c => c !== catToRemove);
+  localStorage.setItem("categories", JSON.stringify(categories));
+
+  // Remove related budget
+  let budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
+  delete budgets[catToRemove];
+  localStorage.setItem("budgets", JSON.stringify(budgets));
+
+  // Reassign category in data
+  Object.keys(localStorage).forEach(key => {
+    if (key.startsWith("expenses_") || key.startsWith("income_")) {
+      const records = JSON.parse(localStorage.getItem(key) || "[]");
+      records.forEach(r => {
+        if (r.category === catToRemove) {
+          r.category = "카테고리 없음";
+        }
+      });
+      localStorage.setItem(key, JSON.stringify(records));
+    }
+  });
+
+  renderCategories();
+  updateCategoryDropdowns();
+}
+
+function updateCategoryDropdowns() {
+  ensureDefaultCategory();
+  const selects = document.querySelectorAll("select.category-dropdown");
+  let categories = JSON.parse(localStorage.getItem("categories") || "[]");
+  selects.forEach(select => {
+    select.innerHTML = "";
+    categories.forEach(c => {
+      const opt = document.createElement("option");
+      opt.value = c;
+      opt.textContent = c;
+      select.appendChild(opt);
+    });
+  });
 }
