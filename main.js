@@ -61,19 +61,39 @@ function renderCategories() {
   const container = document.getElementById("category-list");
   if (!container) return;
   container.innerHTML = "";
+
+  container.style.display = "flex";
+  container.style.flexWrap = "wrap";
+  container.style.gap = "8px";
+
   categories.forEach(cat => {
+    const catWrap = document.createElement("span");
+    catWrap.style.display = "inline-flex";
+    catWrap.style.alignItems = "center";
+
     const btn = document.createElement("button");
     btn.textContent = cat;
     btn.disabled = true;
-    btn.style.marginRight = "8px";
+    btn.style.backgroundColor = "#4da6ff";
+    btn.style.color = "white";
+    btn.style.border = "none";
+    btn.style.padding = "6px 12px";
+    btn.style.borderRadius = "16px";
+    btn.style.fontSize = "14px";
+
     const del = document.createElement("button");
     del.textContent = "❌";
-    del.onclick = () => removeCategory(cat);
-    const wrap = document.createElement("span");
-    wrap.style.marginRight = "10px";
-    wrap.appendChild(btn);
-    wrap.appendChild(del);
-    container.appendChild(wrap);
+    del.style.marginLeft = "4px";
+    del.style.fontSize = "10px";
+    del.onclick = () => {
+      if (confirm(`정말 [\${cat}] 카테고리를 삭제하시겠습니까?`)) {
+        removeCategory(cat);
+      }
+    };
+
+    catWrap.appendChild(btn);
+    catWrap.appendChild(del);
+    container.appendChild(catWrap);
   });
 }
 
