@@ -216,3 +216,59 @@ function updateCategoryDropdowns() {
     });
   });
 }
+
+
+  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
+  budgets[category] = amount;
+  localStorage.setItem("budgets", JSON.stringify(budgets));
+
+  amountInput.value = "";
+  renderBudgets();
+}
+
+}
+
+function saveBudget() {
+  const catSelect = document.getElementById("budget-category");
+  const amountInput = document.getElementById("budget-amount");
+
+  const category = catSelect?.value || "";
+  const amount = parseInt(amountInput?.value || "0");
+
+  if (!category || isNaN(amount) || amount <= 0) {
+    alert("올바른 카테고리와 금액을 입력해주세요.");
+    return;
+  }
+
+  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
+  budgets[category] = amount;
+  localStorage.setItem("budgets", JSON.stringify(budgets));
+
+  amountInput.value = "";
+  renderBudgets();
+}
+
+function renderBudgets() {
+  const tbody = document.getElementById("budget-table-body");
+  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
+
+  if (!tbody) return;
+  tbody.innerHTML = "";
+
+  for (const cat in budgets) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${cat}</td>
+      <td>${budgets[cat].toLocaleString()}원</td>
+      <td><button onclick="deleteBudget('${cat}')">❌</button></td>
+    `;
+    tbody.appendChild(tr);
+  }
+}
+
+function deleteBudget(cat) {
+  const budgets = JSON.parse(localStorage.getItem("budgets") || "{}");
+  delete budgets[cat];
+  localStorage.setItem("budgets", JSON.stringify(budgets));
+  renderBudgets();
+}
