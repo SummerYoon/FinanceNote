@@ -1,40 +1,32 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
   <meta charset="UTF-8" />
-  <title>나의 가계부</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Finance Note</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <header>
-    <h1>나의 가계부 <button>✏️</button></h1>
+    <h1 contenteditable="true">Finance Note</h1>
     <nav>
       <a href="index.html">홈</a>
       <a href="analize.html">소비분석</a>
-      <a href="setup.html">설정</a>
-      <a href="income.html">인컴</a>
+      <a href="setup.html">소비설정</a>
     </nav>
   </header>
-
   <main>
-    <h2>오늘의 소비 내역 <span id="today-date"></span></h2>
-    <table>
-      <thead>
-        <tr><th>내역명</th><th>카테고리</th><th>금액</th></tr>
-      </thead>
-      <tbody id="expense-table-body">
-        <tr><td><input type="text" placeholder="예: 점심"></td><td><select><option>식비</option></select></td><td><input type="number" placeholder="0"></td></tr>
-        <tr><td><input type="text" placeholder="예: 커피"></td><td><select><option>음료</option></select></td><td><input type="number" placeholder="0"></td></tr>
-        <tr><td><input type="text" placeholder="예: 마트"></td><td><select><option>장보기</option></select></td><td><input type="number" placeholder="0"></td></tr>
-        <tr><td><input type="text" placeholder="예: 교통비"></td><td><select><option>교통</option></select></td><td><input type="number" placeholder="0"></td></tr>
-        <tr><td><input type="text" placeholder="예: 기타"></td><td><select><option>기타</option></select></td><td><input type="number" placeholder="0"></td></tr>
-      </tbody>
-    </table>
-    <button onclick="addExpenseRow()">➕ 추가 입력하기</button>
-    <button onclick="saveTodayExpenses()" style="margin-top: 10px;">💾 저장</button>
+    <section id="input-area">
+      <h2>소비내역 입력</h2>
+      <div id="expense-rows"></div>
+      <button id="add-row">추가 입력하기</button>
+      <button id="save-expenses">저장</button>
+    </section>
+    <section>
+      <h2>일별 소비내역</h2>
+      <div id="saved-expenses"></div>
+    </section>
   </main>
-
   <script src="main.js"></script>
 </body>
 </html>

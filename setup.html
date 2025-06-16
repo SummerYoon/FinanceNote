@@ -1,66 +1,30 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <title>설정</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>소비설정</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
   <header>
-    <h1>나의 가계부 <button>✏️</button></h1>
+    <h1 contenteditable="true">Finance Note</h1>
     <nav>
       <a href="index.html">홈</a>
       <a href="analize.html">소비분석</a>
-      <a href="setup.html">설정</a>
-      <a href="income.html">인컴</a>
+      <a href="setup.html">소비설정</a>
     </nav>
   </header>
-
   <main>
-    <h2>카테고리 관리</h2>
-    <div id="category-list"></div>
-    <div style="margin-top: 10px;">
-      <input type="text" id="new-category-input" placeholder="새 카테고리 입력" />
-      <button id="add-cat-btn">카테고리 추가</button>
-    </div>
-
-    <h2>예산 설정</h2>
-    <table>
-      <thead>
-        <tr><th>카테고리</th><th>금액</th></tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>
-            <select id="budget-category" class="category-dropdown"></select>
-          </td>
-          <td><input type="number" id="budget-amount" placeholder="0 원" /></td>
-          <td><button onclick="saveBudget()">저장</button></td>
-        </tr>
-      </tbody>
-    </table>
-
-    <table>
-      <thead><tr><th>카테고리</th><th>예산 금액</th></tr></thead>
-      <tbody id="budget-table-body"></tbody>
-    </table>
+    <section>
+      <h2>카테고리 추가</h2>
+      <input type="text" id="new-category-input" placeholder="새 카테고리 이름">
+      <button id="add-category">저장</button>
+    </section>
+    <section>
+      <h2>카테고리 목록</h2>
+      <ul id="category-list"></ul>
+    </section>
   </main>
-
   <script src="main.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const addBtn = document.getElementById("add-cat-btn");
-      if (addBtn) {
-        addBtn.addEventListener("click", () => {
-          if (typeof addNewCategory === "function") {
-            addNewCategory();
-          } else {
-            console.error("addNewCategory() 함수가 로드되지 않았습니다.");
-          }
-        });
-      }
-    });
-  </script>
 </body>
 </html>

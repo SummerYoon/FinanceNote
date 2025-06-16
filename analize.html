@@ -1,49 +1,23 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>나의 가계부 - 소비분석</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8">
+  <title>소비분석</title>
+  <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
-  <nav>
-    <h1 contenteditable="true">나의 가계부</h1>
-    <div>
+  <header>
+    <h1 contenteditable="true">Finance Note</h1>
+    <nav>
       <a href="index.html">홈</a>
       <a href="analize.html">소비분석</a>
-      <a href="setup.html">설정</a>
-      <a href="income.html">인컴</a>
-    </div>
-  </nav>
-
-  <section>
-    <h2>월별 소비 분석 (<span id="current-month"></span>)</h2>
-    <div id="summary-box">
-      <p><strong>총 사용 금액:</strong> <span id="total-used">0원</span></p>
-      <p><strong>총 예산:</strong> <span id="total-budget">0원</span></p>
-      <p><strong>총 남은 예산:</strong> <span id="total-remaining">0원</span></p>
-    </div>
-
-    <table>
-      <thead>
-        <tr><th>카테고리</th><th>사용 금액</th><th>예산</th><th>남은 예산</th></tr>
-      </thead>
-      <tbody id="analysis-table-body"></tbody>
-    </table>
-
-    <h3 style="margin-top: 40px;">카테고리별 소비 비율</h3>
-    <canvas id="donutChart" width="300" height="300"></canvas>
-
-    <div id="monthly-details" style="margin-top: 40px;"></div>
-  </section>
-
+      <a href="setup.html">소비설정</a>
+    </nav>
+  </header>
+  <main>
+    <h2>월별 소비 분석</h2>
+    <table id="monthly-analysis"></table>
+  </main>
   <script src="main.js"></script>
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      loadThisMonthExpenses();
-    });
-  </script>
 </body>
 </html>

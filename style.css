@@ -1,8 +1,27 @@
-body { font-family: sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
-nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f0f0f0; position: sticky; top: 0; }
-nav h1 { margin: 0; font-size: 1.2rem; }
-nav a { margin-left: 0.5rem; text-decoration: none; color: black; }
-section { padding: 1rem; }
-table { width: 100%; border-collapse: collapse; margin-top: 1rem; background: white; }
-th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-input, select, button { padding: 5px; margin: 5px 0; }
+body {
+  font-family: sans-serif;
+  margin: 20px;
+}
+header h1 {
+  font-size: 1.5em;
+}
+nav a {
+  margin-right: 10px;
+  text-decoration: none;
+}
+.expense-row {
+  margin: 5px 0;
+}
+input, select {
+  margin-right: 5px;
+}
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 10px;
+}
+th, td {
+  border: 1px solid #ccc;
+  padding: 5px;
+  text-align: left;
+}
